@@ -1,0 +1,37 @@
+name: Gemini AI Songwriter
+
+on:
+  push:
+    paths:
+      - 'core_concept.md' # Triggers only when you edit your core concept file
+
+jobs:
+  write-lyrics:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Allows the Action to commit lyrics back to your repo
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/checkout@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install Dependencies
+      run: pip install requests
+
+    - name: Run Gemini Lyric Generator
+      env:
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      run: python .github/scripts/generate_lyrics.py
+
+    - name: Commit and Push New Lyrics
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git add lyrics/
+        git commit -m "style: automated lyrics update by Gemini AI" || echo "No changes to commit"
+        git push
